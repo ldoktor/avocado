@@ -35,6 +35,9 @@ from . import path as utils_path
 from . import process
 
 
+_CURRENT_ARCH = os.uname()[4]
+
+
 class ImageProviderError(Exception):
     """
     Generic error class for ImageProvider
@@ -144,7 +147,7 @@ class FedoraImageProvider(ImageProviderBase):
     name = 'Fedora'
 
     def __init__(self, version='[0-9]+', build='[0-9]+.[0-9]+',
-                 arch=os.uname()[4]):
+                 arch=_CURRENT_ARCH):
         super(FedoraImageProvider, self).__init__(version, build, arch)
         self.url_versions = 'https://dl.fedoraproject.org/pub/fedora/linux/releases/'
         self.url_images = self.url_versions + '{version}/CloudImages/{arch}/images/'
@@ -159,7 +162,7 @@ class FedoraSecondaryImageProvider(ImageProviderBase):
     name = 'FedoraSecondary'
 
     def __init__(self, version='[0-9]+', build='[0-9]+.[0-9]+',
-                 arch=os.uname()[4]):
+                 arch=_CURRENT_ARCH):
         super(FedoraSecondaryImageProvider, self).__init__(version, build,
                                                            arch)
         self.url_versions = 'https://dl.fedoraproject.org/pub/fedora-secondary/releases/'
@@ -174,7 +177,7 @@ class CentOSImageProvider(ImageProviderBase):
 
     name = 'CentOS'
 
-    def __init__(self, version='[0-9]+', build='[0-9]{4}', arch=os.uname()[4]):
+    def __init__(self, version='[0-9]+', build='[0-9]{4}', arch=_CURRENT_ARCH):
         super(CentOSImageProvider, self).__init__(version, build, arch)
         self.url_versions = 'https://cloud.centos.org/centos/'
         self.url_images = self.url_versions + '{version}/images/'
@@ -192,7 +195,7 @@ class UbuntuImageProvider(ImageProviderBase):
     name = 'Ubuntu'
 
     def __init__(self, version='[0-9]+.[0-9]+', build=None,
-                 arch=os.uname()[4]):
+                 arch=_CURRENT_ARCH):
         super(UbuntuImageProvider, self).__init__(version, build, arch)
         self.url_versions = 'http://cloud-images.ubuntu.com/releases/'
         self.url_images = self.url_versions + 'releases/{version}/release/'
@@ -207,7 +210,7 @@ class DebianImageProvider(ImageProviderBase):
     name = 'Debian'
 
     def __init__(self, version='[0-9]+.[0-9]+.[0-9]+-.*', build=None,
-                 arch=os.uname()[4]):
+                 arch=_CURRENT_ARCH):
         super(DebianImageProvider, self).__init__(version, build, arch)
         self.url_versions = 'https://cdimage.debian.org/cdimage/openstack/'
         self.url_images = self.url_versions + '{version}/'
