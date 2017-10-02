@@ -160,7 +160,83 @@ class TestID(object):
                                  % (self.str_uid, str(self)))
 
 
-class Test(unittest.TestCase):
+class TestData(object):
+
+    DATA_SOURCES = ["variant", "test", "file"]
+    _data_sources_mapping = None
+
+    def _initialize_data_sources(self):
+        path_file = self.datadir
+        if not path_file:
+            return
+        path_test = astring.string_to_safe_path("%s.%s"
+                                                % (self.__class__.__name__,
+                                                   self._testMethodName))
+        path_test = os.path.join(path_file, path_test)
+        self._data_sources_mapping = {"file": path_file,
+                                      "test": os.path.join(path_file,
+                                                           path_test)}
+        _variant = self.name.variant
+        if _variant is not None:
+            path_variant = os.path.join(path_test,
+                                        astring.string_to_safe_path(_variant))
+            self._data_sources_mapping["variant"] = path_variant
+
+    def _check_valid_data_source(self, source):
+        """
+        Utility to check if user chose a specific data source
+
+        :param source: either None for no specific selection or a source name
+        :type source: None or str
+        :raises: ValueError
+        """
+        if source is not None and source not in self.DATA_SOURCES:
+            msg = 'Data file source requested (%s) is not one of: %s'
+            msg %= (source, ', '.join(self.DATA_SOURCES))
+            raise ValueError(msg)
+
+    def get_data(self, filename, source=None, must_exist=True):
+        """
+        Retrieves the path to a given data file.
+
+        This implementation looks for data file in one of the sources
+        defined by the :attr:`DATA_SOURCES` attribute.
+
+        :param filename: the name of the data file to be retrieved
+        :type filename: str
+        :param source: one of the defined data sources
+        :type source: str
+        :param must_exist: whether the existence of a file is checked
+        :type must_exist: bool
+        :rtype: str or None
+        """
+        if self._data_sources_mapping is None:
+            self._initialize_data_sources()
+        log_fmt = 'DATA (filename=%s) => %s (%s)'
+        if source is None:
+            sources = self.DATA_SOURCES
+        else:
+            self._check_valid_data_source(source)
+            sources = [source]
+        for attempt_source in sources:
+            datadir = self._data_sources_mapping[attempt_source]
+            print datadir
+            path = os.path.join(datadir, filename)
+            if not must_exist:
+                self.log.debug(log_fmt, filename, path,
+                               "not yet in %s source dir" % attempt_source)
+                return path
+            else:
+                if os.path.exists(path):
+                    self.log.debug(log_fmt, filename, path,
+                                   "found at %s source dir" % attempt_source)
+                    return path
+
+        self.log.debug(log_fmt, filename, "NOT FOUND",
+                       "data sources: %s" % ', '.join(sources))
+
+
+class Test(unittest.TestCase, TestData):
 
     """
     Base implementation for the test class.
@@ -293,6 +369,7 @@ class Test(unittest.TestCase):
             self.log.debug("Test metadata:")
             self.log.debug("  filename: %s", self.filename)
         unittest.TestCase.__init__(self, methodName=methodName)
+        TestData.__init__(self)
 
     @property
     def name(self):
