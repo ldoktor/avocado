@@ -118,7 +118,11 @@ Now check if you have the ``avocado`` and ``avocado-lts`` repositories configure
     ...
     repo id      repo name                          status
     avocado      Avocado                            50
-    avocado-lts  Avocado LTS (Long Term Stability)  disabled
+
+
+
+
+vvv avocado-lts  Avocado LTS (Long Term Stability)  disabled
 
 Regular users of Avocado will want to use the standard ``avocado``
 repository, which tracks the latest Avocado releases.  For more
