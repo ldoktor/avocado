@@ -235,6 +235,9 @@ To continue exploring Avocado, check out the output of ``avocado --help``.  When
 running Avocado out of package-based installs, its man page should also be
 accessible via ``man avocado``.
 
+
+eee 
+
 Documentation
 =============
 
