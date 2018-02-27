@@ -173,6 +173,11 @@ http://avocado-framework.readthedocs.io/en/latest/rfcs/LongTermStability.html
 and to your package management docs on how to switch to the
 ``avocado-lts`` repo.
 
+
+ddd 
+
+
+
 OpenSUSE
 ~~~~~~~~
 
