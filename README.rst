@@ -34,6 +34,10 @@ shortcomings.
 Installing Avocado
 ==================
 
+
+bbb 
+
+
 Avocado is primarily written in Python, so a standard Python installation
 is possible and often preferable.
 
