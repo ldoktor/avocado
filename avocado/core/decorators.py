@@ -16,6 +16,7 @@ from functools import wraps
 import types
 
 from . import exceptions as core_exceptions
+from ..utils import astring
 
 
 def fail_on(exceptions=None):
@@ -48,7 +49,7 @@ def fail_on(exceptions=None):
             except core_exceptions.TestBaseException:
                 raise
             except exceptions as details:
-                raise core_exceptions.TestFail(str(details))
+                raise core_exceptions.TestFail(astring.to_text(details))
         return wrap
     if func:
         return decorate(func)

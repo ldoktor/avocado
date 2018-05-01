@@ -16,6 +16,7 @@
 #          Lucas Meneghel Rodrigues <lmr@redhat.com>
 #          Jaime Huerta-Cepas <jhcepas@gmail.com>
 #
+from avocado.utils import astring
 
 """
 Tree data structure with nodes.
@@ -91,8 +92,8 @@ class TreeEnvironment(dict):
         else:
             values = "{}"
             origin = "{}"
-        return ",".join((values, origin, str(self.filter_only),
-                         str(self.filter_out)))
+        return ",".join((values, origin, repr(self.filter_only),
+                         repr(self.filter_out)))
 
 
 class TreeNodeEnvOnly(object):
@@ -147,9 +148,9 @@ class TreeNode(object):
 
     def __init__(self, name='', value=None, parent=None, children=None):
         """
-        :param name: a name for this node that will be used to define its
-                     path according to the name of its parents
-        :type name: str
+        :param name: a name for this node that will be converted into text
+                     and used to define its path recursively according to
+                     all precursing names.
         :param value: a collection of keys and values that will be made into
                       this node environment.
         :type value: dict
@@ -164,7 +165,7 @@ class TreeNode(object):
             value = {}
         if children is None:
             children = []
-        self.name = name
+        self.name = '{}'.format(name)
         self.value = value
         self.filters = [], []  # This node's filters, full filters are in env
         self.parent = parent
@@ -296,7 +297,7 @@ class TreeNode(object):
         """ Get node path """
         if not self.parent:
             return sep + str(self.name)
-        path = [str(self.name)]
+        path = [self.name]
         for node in self.iter_parents():
             path.append(str(node.name))
         return sep.join(reversed(path))
@@ -458,8 +459,6 @@ def tree_view(root, verbose=None, use_utf8=None):
             out.extend(empty_down_right + line for line in lines[1:])
         return out
 
-    if use_utf8 is None:
-        use_utf8 = locale.getdefaultlocale()[1] == 'UTF-8'
     if use_utf8:
         charset = {'DoubleDown': u' \u2551   ',
                    'DoubleDownRight': u' \u2560\u2550\u2550 ',
@@ -504,4 +503,8 @@ def tree_view(root, verbose=None, use_utf8=None):
         out.append(right + lines[0])
         out.extend(' ' * len(down_right) + line for line in lines[1:])
     # When not on TTY we need to force the encoding
-    return '\n'.join(out).encode('utf-8' if use_utf8 else 'ascii')
+    output = '\n'.join(out)
+    if use_utf8:
+        return output
+    else:
+        return astring.safe_transcode(output, 'ascii')

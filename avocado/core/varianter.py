@@ -14,6 +14,7 @@
 # Authors: Ruda Moura <rmoura@redhat.com>
 #          Ademar Reis <areis@redhat.com>
 #          Lucas Meneghel Rodrigues <lmr@redhat.com>
+from avocado.utils import astring
 
 """
 Base classes for implementing the varianter interface
@@ -49,10 +50,12 @@ def generate_variant_id(variant):
     variant = sorted(variant, key=lambda x: x.path)
     fingerprint = "-".join(_.fingerprint() for _ in variant)
     return ("-".join(node.name for node in variant) + '-' +
-            hashlib.sha1(fingerprint.encode()).hexdigest()[:4])
+            hashlib.sha1(fingerprint.encode(errors='xmlcharrefreplace'))
+            .hexdigest()[:4])
 
 
-def variant_to_str(variant, verbosity, out_args=None, debug=False):
+def variant_to_str(variant, verbosity, out_args=None, debug=False,
+                   use_utf8=False):
     """
     Reports human readable representation of a variant
 
@@ -83,11 +86,12 @@ def variant_to_str(variant, verbosity, out_args=None, debug=False):
             for key, value in iteritems(node.environment):
                 origin = node.environment.origin[key].path
                 env.add(("%s:%s" % (origin, key), str(value)))
-        if not env:
-            return out
-        fmt = '    %%-%ds => %%s' % max([len(_[0]) for _ in env])
-        for record in sorted(env):
-            out.append(fmt % record)
+        if env:
+            fmt = '    %%-%ds => %%s' % max([len(_[0]) for _ in env])
+            for record in sorted(env):
+                out.append(fmt % record)
+    if not use_utf8:
+        out = [astring.safe_transcode(_, 'ascii') for _ in out]
     return out
 
 

@@ -158,7 +158,7 @@ class TestID(object):
         :raises: RuntimeError if the test ID cannot be converted to a
                  filesystem representation.
         """
-        test_id = str(self)
+        test_id = astring.to_text(self)
         test_id_fs = astring.string_to_safe_path(test_id)
         if len(test_id) == len(test_id_fs):    # everything fits in
             return test_id_fs
@@ -1146,8 +1146,8 @@ class SimpleTest(Test):
         Run the executable, and log its detailed execution.
         """
         try:
-            test_params = dict([(str(key), str(val)) for _, key, val in
-                                self.params.iteritems()])
+            test_params = dict([(astring.to_text(key), astring.to_text(val))
+                                for _, key, val in self.params.iteritems()])
 
             result = process.run(self._command, verbose=True,
                                  env=test_params, encoding=defaults.ENCODING)

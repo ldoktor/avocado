@@ -127,6 +127,12 @@ class AstringTest(unittest.TestCase):
         # because on py3 it's unicode and on py2 it uses __repr__ (is encoded)
         self.assertEqual(astring.to_text({u'\xe1': 1}), str({u'\xe1': 1}))
 
+    def test_safe_transcode(self):
+        self.assertEqual(astring.safe_transcode(u'\u017e', 'utf-8'), u'\u017e')
+        self.assertEqual(astring.safe_transcode(u'\u017e', 'Latin1'), u'&#382;')
+        self.assertEqual(astring.safe_transcode(u'\u00e1', 'Latin1'), u'\xe1')
+        self.assertEqual(astring.safe_transcode(u'\u00e1', 'ascii'), u'&#225;')
+
 
 if __name__ == '__main__':
     unittest.main()

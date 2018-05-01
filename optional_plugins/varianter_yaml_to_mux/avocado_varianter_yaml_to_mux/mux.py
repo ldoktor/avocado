@@ -204,13 +204,14 @@ class MuxPlugin(object):
         """
         if not self.variants:
             return ""
+        use_utf8 = kwargs.get("use_utf8", None)
         out = []
         if summary:
             # Log tree representation
             out.append("Multiplex tree representation:")
             # summary == 0 means disable, but in plugin it's brief
             tree_repr = tree.tree_view(self.root, verbose=summary - 1,
-                                       use_utf8=kwargs.get("use_utf8", None))
+                                       use_utf8=use_utf8)
             out.append(tree_repr)
             out.append("")
 
@@ -219,8 +220,9 @@ class MuxPlugin(object):
             out.append("Multiplex variants (%s):" % len(self))
             for variant in self:
                 out.extend(varianter.variant_to_str(variant, variants - 1,
-                                                    kwargs, self.debug))
-        return "\n".join(out)
+                                                    kwargs, self.debug,
+                                                    use_utf8))
+        return u"\n".join(out)
 
     def __len__(self):
         """

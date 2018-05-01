@@ -190,11 +190,12 @@ def create_job_logs_dir(base_dir=None, unique_id=None):
         return logdir
     logdir += "."
     for i in range(1000):
+        name = u"{}{}".format(logdir, i)
         try:
-            os.mkdir(logdir + str(i))
+            os.mkdir(name)
         except OSError:
             continue
-        return logdir + str(i)
+        return name
     raise IOError("Unable to create unique logdir in 1000 iterations: %s"
                   % (logdir))
 

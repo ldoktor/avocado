@@ -11,6 +11,8 @@
 #
 # Copyright: Red Hat Inc. 2016-2017
 # Author: Lukas Doktor <ldoktor@redhat.com>
+import locale
+import io
 
 """Varianter plugin to parse yaml files to params"""
 
@@ -46,6 +48,7 @@ YAML_FILTER_OUT = 104
 
 __RE_FILE_SPLIT = re.compile(r'(?<!\\):')   # split by ':' but not '\\:'
 __RE_FILE_SUBS = re.compile(r'(?<!\\)\\:')  # substitute '\\:' but not '\\\\:'
+__DEFAULT_ENCODING = locale.getpreferredencoding()
 
 
 class _BaseLoader(Loader):
@@ -146,7 +149,7 @@ def _create_from_yaml(path, cls_node=mux.MuxTreeNode):
                     else:
                         handle_control_tag(node, value)
                 elif isinstance(value[1], collections.OrderedDict):
-                    node.add_child(tree_node_from_values(str(value[0]),
+                    node.add_child(tree_node_from_values(value[0],
                                                          value[1]))
                 else:
                     node.value[value[0]] = value[1]
@@ -184,7 +187,7 @@ def _create_from_yaml(path, cls_node=mux.MuxTreeNode):
             return node
 
         # Initialize the node
-        node = cls_node(str(name))
+        node = cls_node(name)
         if not values:
             return node
         using = ''
@@ -208,7 +211,7 @@ def _create_from_yaml(path, cls_node=mux.MuxTreeNode):
             if key_node.tag.startswith('!'):    # reflect tags everywhere
                 key = loader.construct_object(key_node)
             else:
-                key = loader.construct_python_str(key_node)
+                key = loader.construct_python_unicode(key_node)
             # If we are to keep them, use following, but we lose the control
             # for both, nodes and dicts
             # key = loader.construct_object(key_node)
@@ -228,7 +231,7 @@ def _create_from_yaml(path, cls_node=mux.MuxTreeNode):
             if isinstance(values, ListOfNodeObjects):   # New node from list
                 objects.append(tree_node_from_values(name, values))
             elif values is None:            # Empty node
-                objects.append(cls_node(str(name)))
+                objects.append(cls_node(name))
             else:                           # Values
                 objects.append(Value((name, values)))
         return objects
@@ -329,7 +332,7 @@ def create_from_yaml(paths, debug=False):
             merge(data, path)
     # Yaml can raise IndexError on some files
     except (yaml.YAMLError, IndexError) as details:
-        if 'mapping values are not allowed in this context' in str(details):
+        if 'mapping values are not allowed in this context' in '{}'.format(details):
             details = ("%s\nMake sure !tags and colons are separated by a "
                        "space (eg. !include :)" % details)
         msg = "Invalid multiplex file '%s': %s" % (path, details)

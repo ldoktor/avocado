@@ -63,8 +63,14 @@ class StandaloneTests(unittest.TestCase):
         cmd_line = '%s ./examples/tests/errortest_nasty2.py -r' % PY_CMD
         expected_rc = exit_codes.AVOCADO_TESTS_FAIL
         result = self.run_and_check(cmd_line, expected_rc, 'errortest_nasty2')
-        self.assertIn(b"Exception: Unable to get exception, check the traceback"
-                      b" for details.", result.stdout)
+        if sys.version_info[0] == 3:
+            exc = "errortest_nasty2.NastyException: None"
+        else:
+            exc = "NastyException: None"
+        count = result.stdout_text.count("\n%s" % exc)
+        self.assertEqual(count, 2, "Exception \\n%s should be present twice in"
+                         "the log (once from the log, second time when parsing"
+                         "exception details." % (exc))
 
     def test_errortest_nasty3(self):
         cmd_line = '%s ./examples/tests/errortest_nasty3.py -r' % PY_CMD

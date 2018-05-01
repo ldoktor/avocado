@@ -14,6 +14,7 @@
 # Author: Lukas Doktor <ldoktor@redhat.com>
 
 import json
+import locale
 import sys
 
 from avocado.core import exit_codes
@@ -98,6 +99,8 @@ class Variants(CLICmd):
             sys.exit(exit_codes.AVOCADO_FAIL)
         use_utf8 = settings.get_value("runner.output", "utf8",
                                       key_type=bool, default=None)
+        if use_utf8 is None:
+            use_utf8 = locale.getpreferredencoding() == 'UTF-8'
         summary = args.summary or 0
         variants = args.variants or 0
 
@@ -122,11 +125,31 @@ class Variants(CLICmd):
                 LOG_UI.error("Cannot write %s", args.json_variants_dump)
                 sys.exit(exit_codes.AVOCADO_FAIL)
 
+        LOG_UI.warning("PARSED")
+        use_utf8 = False
         # Produce the output
         lines = args.avocado_variants.to_str(summary=summary,
                                              variants=variants,
                                              use_utf8=use_utf8)
         for line in lines.splitlines():
             LOG_UI.debug(line)
+        LOG_UI.warning("PRINTED no UTF8")
+        use_utf8 = True
+        # Export the serialized avocado_variants
+        if args.json_variants_dump is not None:
+            try:
+                with open(args.json_variants_dump, 'w') as variants_file:
+                    json.dump(args.avocado_variants.dump(), variants_file)
+            except IOError:
+                LOG_UI.error("Cannot write %s", args.json_variants_dump)
+                sys.exit(exit_codes.AVOCADO_FAIL)
+
+        # Produce the output
+        lines = args.avocado_variants.to_str(summary=summary,
+                                             variants=variants,
+                                             use_utf8=use_utf8)
+        for line in lines.splitlines():
+            LOG_UI.debug(line)
+        LOG_UI.warning("PRINTED UTF-8")
 
         sys.exit(exit_codes.AVOCADO_ALL_OK)

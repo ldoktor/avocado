@@ -331,3 +331,14 @@ def to_text(data, encoding=ENCODING):
         else:
             return str(data)
     return data
+
+
+def safe_transcode(data, encoding):
+    """
+    Safely transcode the data into "encoding" replacing the unsupported
+    chars using 'xmlcharrefreplace'.
+
+    :param data: Decoded text data to be transcoded into the desired encoding
+    :params encoding: target encoding
+    """
+    return data.encode(encoding, errors='xmlcharrefreplace').decode(encoding)

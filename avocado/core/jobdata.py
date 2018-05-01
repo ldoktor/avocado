@@ -24,6 +24,7 @@ import os
 from . import varianter
 from .output import LOG_UI, LOG_JOB
 from .settings import settings
+from ..utils import astring
 from ..utils.path import init_dir
 
 
@@ -41,9 +42,10 @@ def record(args, logdir, variants, references=None, cmdline=None):
     Records all required job information.
     """
     def json_bad_variants_obj(item):
+        item = astring.to_text(item)
         for log in [LOG_UI, LOG_JOB]:
             log.warning("jobdata.variants: Unable to serialize '%s'", item)
-        return str(item)
+        return item
     base_dir = init_dir(logdir, JOB_DATA_DIR)
     path_cfg = os.path.join(base_dir, CONFIG_FILENAME)
     path_references = os.path.join(base_dir, TEST_REFERENCES_FILENAME)

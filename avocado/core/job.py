@@ -542,7 +542,7 @@ class Job(object):
             self.exitcode |= exit_codes.AVOCADO_JOB_FAIL
             return self.exitcode
         except exceptions.OptionValidationError as details:
-            self.log.error('\n' + str(details))
+            self.log.error('\n' + astring.to_text((details)))
             self.exitcode |= exit_codes.AVOCADO_JOB_FAIL
             return self.exitcode
 
